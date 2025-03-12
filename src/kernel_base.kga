@@ -65,6 +65,9 @@ cpu_exec
     var catStr
     write "cat" to var:catStr
 
+    var modifyStr
+    write "modify" to var:modifyStr
+
 label kernel_start
     // Display prompt to enter the value:
     copy var:sys_work_dir to DISPLAY_BUFFER
@@ -122,9 +125,16 @@ label kernel_start
     cpu_exec
     jump_if label:cat_command
 
+    copy var:parsedStr to REG_A
+    copy var:modifyStr to REG_B
+    write OP_CMP_EQ to REG_OP
+    cpu_exec
+    jump_if label:modify_command
+
     jump label:kernel_start
 
 label cat_command
+
     copy var:parsedArg1 to REG_A
     write "" to REG_B
     write OP_CMP_EQ to REG_OP
@@ -178,6 +188,87 @@ label cat_command
         copy PROGRAM_COUNTER to var:sys_return
         jump label:sys_fs_close
         jump label:kernel_start
+
+label modify_command
+
+    copy var:parsedArg1 to REG_A
+    write "" to REG_B
+    write OP_CMP_EQ to REG_OP
+    cpu_exec
+    jump_if label:modify_command_error
+
+    var modify_command_file_desc
+    copy var:parsedArg1 to REG_A
+    copy PROGRAM_COUNTER to var:sys_return
+    jump label:sys_fs_open
+    jump_err label:modify_command_error
+    copy REG_RES to var:modify_command_file_desc
+
+    var modify_command_line_counter
+    write 1 to var:modify_command_line_counter
+
+    label modify_command_loop
+        var current_line
+        copy var:modify_command_file_desc to REG_A
+        copy var:modify_command_line_counter to REG_B
+        copy PROGRAM_COUNTER to var:sys_return
+        jump label:sys_fs_read
+        jump_err label:modify_command_close
+
+        copy REG_RES to var:current_line
+        var char
+        copy var:current_line to REG_A
+        write 1 to REG_B
+        write "" to REG_C
+
+        write OP_GET_COLUMN to REG_OP
+        cpu_exec
+        copy REG_RES to var:char
+
+        copy var:char to REG_A
+        write OP_IS_NUM to REG_OP
+        cpu_exec
+        jump_if_not label:modify_command_increment
+
+        copy var:char to REG_A
+        write OP_INCR to REG_OP
+        cpu_exec
+        copy REG_RES to var:char
+
+        var result
+        copy var:result to REG_A
+        write 1 to REG_B
+        write "" to REG_C
+        copy var:char to REG_D
+        write OP_REPLACE_COLUMN to REG_OP
+        cpu_exec
+        copy REG_RES to var:result
+        copy var:modify_command_file_desc to REG_A
+        copy var:modify_command_line_counter to REG_B
+        copy var:result to REG_C
+
+        copy PROGRAM_COUNTER to var:sys_return
+        jump label:sys_fs_write
+        jump_err label:modify_command_close
+
+
+    label modify_command_increment
+        copy var:modify_command_line_counter to REG_A
+        write OP_INCR to REG_OP
+        cpu_exec
+        copy REG_RES to modify_command_line_counter
+        jump label:modify_command_loop
+
+    label modify_command_error
+        write "ERROR: Cannot modify commmand" to DISPLAY_BUFFER
+        write OP_DISPLAY to REG_OP
+        cpu_exec
+        jump label:kernel_start
+
+    label modify_command_close
+        copy var:modify_command_file_desc to REG_A
+        copy PROGRAM_COUNTER to var:sys_return
+        jump label:sys_fs_close
 
 
 label kernel_end
