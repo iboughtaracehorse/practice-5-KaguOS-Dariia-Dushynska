@@ -99,7 +99,7 @@ label start
 
     label shift_left
         copy *var:counter to REG_A
-        write "" to REG_B
+        write "1" to REG_B
         write "" to REG_C
         write "" to REG_D
         write OP_REPLACE_COLUMN to REG_OP
