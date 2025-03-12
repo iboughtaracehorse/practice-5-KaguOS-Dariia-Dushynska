@@ -44,9 +44,10 @@ label start
 
     write 195 to var:counter
     copy var:counter to REG_A
-    write 200 to var:counter
+    write 221 to REG_B
     write OP_RENDER_BITMAP to REG_OP
     cpu_exec
+    jump label:read_key
 
     label read_key
         write 200 to var:counter
@@ -97,7 +98,7 @@ label start
         jump label:start
 
     label shift_left
-        copy *var:counter to REG_B
+        copy *var:counter to REG_A
         write "" to REG_B
         write "" to REG_C
         write "" to REG_D
