@@ -1,0 +1,129 @@
+DEBUG_OFF
+
+write "Press Enter and then type d or a." to DISPLAY_BUFFER
+write COLOR_GREEN to DISPLAY_COLOR
+write OP_DISPLAY_LN to REG_OP
+cpu_exec
+
+write OP_READ_INPUT to REG_OP
+cpu_exec
+
+write COLOR_CYAN to DISPLAY_BACKGROUND
+write OP_SET_BACKGROUND_COLOR to REG_OP
+cpu_exec
+
+write "cccccccccccccccccccccccccccc" to 196
+write "cccccccccccccccccccccccccccc" to 197
+write "cccccccccccccccccccccccccccc" to 198
+write "cccccccccccccccccccccccccccc" to 199
+write "cccccccccccrrrrrcccccccccccc" to 200
+write "ccccccccccrrrrrrrrrccccccccc" to 201
+write "ccccccccccbbbyybyccccccccccc" to 202
+write "cccccccccbybyyybyyyccccccccc" to 203
+write "cccccccccbybbyyybyyycccccccc" to 204
+write "cccccccccbbyyyybbbbccccccccc" to 205
+write "cccccccccccyyyyyyycccccccccc" to 206
+write "ccccccccccbbrbbbcccccccccccc" to 207
+write "cccccccccbbbrbbrbbbccccccccc" to 208
+write "ccccccccbbbbrrrrbbbbcccccccc" to 209
+write "ccccccccyybryrryrbyycccccccc" to 210
+write "ccccccccyyyrrrrrryyycccccccc" to 211
+write "ccccccccyyrrrrrrrryycccccccc" to 212
+write "ccccccccccrrrccrrrcccccccccc" to 213
+write "cccccccccbbbccccbbbccccccccc" to 214
+write "ccccccccbbbbccccbbbbcccccccc" to 215
+write "cwwwwwwwwwwwwwwwwwwwwwwwwwwc" to 216
+write "cccccccccccccccccccccccccccc" to 217
+write "cccccccccccccccccccccccccccc" to 218
+write "cccccccccccccccccccccccccccc" to 219
+write "cccccccccccccccccccccccccccc" to 220
+
+label start
+
+    var counter
+
+    write 195 to var:counter
+    copy var:counter to REG_A
+    write 200 to var:counter
+    write OP_RENDER_BITMAP to REG_OP
+    cpu_exec
+
+    label read_key
+        write 200 to var:counter
+
+        write KEYBOARD_READ_CHAR_SILENTLY to REG_A
+        write OP_READ_INPUT to REG_OP
+        cpu_exec
+        copy KEYBOARD_BUFFER to REG_A
+
+        write "d" to REG_B
+        write OP_CMP_EQ to REG_OP
+        cpu_exec
+
+        jump_if label:shift_right
+
+        write "a" to REG_B
+        write OP_CMP_EQ to REG_OP
+        cpu_exec
+        jump_if label:shift_left
+
+        write "q" to REG_B
+        write OP_CMP_EQ to REG_OP
+        cpu_exec
+        jump_if label:quit
+
+        jump label:read_key
+
+    label shift_right
+
+        write "c" to REG_A
+        copy *var:counter to REG_B
+        write "" to REG_C
+        write OP_CONCAT_WITH to REG_OP
+        cpu_exec
+        copy REG_RES to *var:counter
+
+        copy var:counter to REG_A
+        write OP_INCR to REG_OP
+        cpu_exec
+        copy REG_RES to var:counter
+
+        copy var:counter to REG_A
+        write 217 to REG_B
+        write OP_CMP_LT to REG_OP
+        cpu_exec
+        jump_if label:shift_right
+
+        jump label:start
+
+    label shift_left
+        copy *var:counter to REG_B
+        write "" to REG_B
+        write "" to REG_C
+        write "" to REG_D
+        write OP_REPLACE_COLUMN to REG_OP
+        cpu_exec
+        copy REG_RES to *var:counter
+
+        copy var:counter to REG_A
+        write OP_INCR to REG_OP
+        cpu_exec
+        copy REG_RES to var:counter
+
+        copy var:counter to REG_A
+        write 217 to REG_B
+        write OP_CMP_LT to REG_OP
+        cpu_exec
+        jump_if label:shift_left
+
+        jump label:start
+
+    label quit
+
+        write OP_HALT to REG_OP
+        cpu_exec
+
+        jump label:start
+
+write OP_HALT to REG_OP
+cpu_exec
