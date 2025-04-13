@@ -1,0 +1,147 @@
+DEBUG_OFF
+
+write "Run, cat, run! Vampire rats are attacking CAT CITY! You'd better run faster, or those glowing red eyes will be the last thing you see... Press enter and then 'd' to escape!" to DISPLAY_BUFFER
+write COLOR_GREEN to DISPLAY_COLOR
+write OP_DISPLAY_LN to REG_OP
+cpu_exec
+
+write OP_READ_INPUT to REG_OP
+cpu_exec
+
+write COLOR_CYAN to DISPLAY_BACKGROUND
+write OP_SET_BACKGROUND_COLOR to REG_OP
+cpu_exec
+
+write "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccBcccccccccrrrcrcrcrrr" to 196
+write "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccwcccccccccrcccrcrcrcr" to 197
+write "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccBcccccccccrcccrrrcrcr" to 198
+write "cccccccccccccccccccccccccccccccccccccccc" to 199
+write "cccccccccccccccccccwwcwwccccccccccccccccccccccccccccccccccccccccccccccccccc" to 200
+write "cccccccccccccccccccBBBBwccccccccccccccccccccccccccccccccccccccccccccccccccc" to 201
+write "ccccccccccccccccwccBrBrcccccccccccccccccccccccccccccccccccccccccccccccccccc" to 202
+write "ccccccccccccccccwcBBBBBBccccccccccccccccccccccccccccccccccccccccccccccccccc" to 203
+write "cccccccccccccccccBBBBcwcccccccccccccccccccccccccccccccccccccccccccccccccccc" to 204
+write "cccccccccccccccccBBBBccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" to 205
+write "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" to 206
+write "ccccccccccccccccccBBcccBcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" to 207
+write "ccccccccccccccccccBBBBBBccccccccccccccccccccccccccccccccccccccccccccccccccc" to 208
+write "cccccccccccccccccBBBBBBBcBccccccccccccccccccccccccccccccccccccccccccccccccc" to 209
+write "ccccccccccccccccccBByBByBcccccccccccccccccccccccccccccccccccccccccccccccccc" to 210
+write "cccccccccccBBccccBBBBBBBcBccccccccccccccccccccccccccccccccccccccccccccccccc" to 211
+write "cccccccccccccBBccccwwwwcccccccccccccccccccccccccccccccccccccccccccccccccccc" to 212
+write "cccccccccccccccBccBBwwwcccccccccccccccccccccccccccccccccccccccccccccccccccc" to 213
+write "ccccccccccccccccBBBBBwBcccccccccccccccccccccccccccccccccccccccccccccccccccc" to 214
+write "ccccccccccccccccBBBwBBBwccccccccccccccccccccccccccccccccccccccccccccccccccc" to 215
+write "cccccccccccccccccccccccccccccccccccccccc" to 216
+write "cccccccccccccccccccccccccccccccccccccccc" to 217
+write "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccBcccccccccrrrcrcrcrrr" to 218
+write "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccwcccccccccrcccrcrcrcr" to 219
+write "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccBcccccccccrcccrrrcrcr" to 220
+
+
+label start
+
+    var counter_cat
+    var counter_mouse
+    var move_counter
+
+    write 199 to var:counter_mouse
+    write 506 to var:counter_cat
+    write 0 to var:move_counter
+
+    copy var:counter_cat to REG_A
+    write 221 to REG_B
+    write OP_RENDER_BITMAP to REG_OP
+    cpu_exec
+
+    jump label:move_mouse_and_cat
+
+    
+label move_mouse_and_cat
+    write "cc" to REG_A
+    copy *var:counter_mouse to REG_B
+    write "" to REG_C
+    write OP_CONCAT_WITH to REG_OP
+    cpu_exec
+    copy REG_RES to *var:counter_mouse
+
+    copy var:counter_mouse to REG_A
+    write OP_INCR to REG_OP
+    cpu_exec
+    copy REG_RES to var:counter_mouse
+
+    copy var:counter_mouse to REG_A
+    write 206 to REG_B         
+    write OP_CMP_LT to REG_OP
+    cpu_exec
+    jump_if label:move_mouse_and_cat
+
+    write 199 to var:counter_mouse
+
+    write 195 to REG_A
+    write 221 to REG_B
+    write OP_RENDER_BITMAP to REG_OP
+    cpu_exec
+
+    jump label:read_key
+
+    
+label read_key
+
+    write 206 to var:counter_cat
+
+    write KEYBOARD_READ_CHAR_SILENTLY to REG_A
+    write OP_READ_INPUT to REG_OP
+    cpu_exec
+    copy KEYBOARD_BUFFER to REG_A
+
+    write "d" to REG_B
+    write OP_CMP_EQ to REG_OP
+    cpu_exec
+    jump_if label:shift_right
+
+    write "q" to REG_B
+    write OP_CMP_EQ to REG_OP
+    cpu_exec
+    jump_if label:quit
+
+    jump label:read_key
+
+label shift_right
+
+    write "ccccc" to REG_A
+    copy *var:counter_cat to REG_B
+    write "" to REG_C
+    write OP_CONCAT_WITH to REG_OP
+    cpu_exec
+    copy REG_RES to *var:counter_cat
+
+    copy var:counter_cat to REG_A
+    write OP_INCR to REG_OP
+    cpu_exec
+    copy REG_RES to var:counter_cat
+    
+    copy var:counter_cat to REG_A
+    write 217 to REG_B
+    write OP_CMP_LT to REG_OP
+    cpu_exec
+    jump_if label:shift_right
+
+    copy var:move_counter to REG_A
+    write OP_INCR to REG_OP
+    cpu_exec
+    copy REG_RES to var:move_counter
+
+    copy var:move_counter to REG_A
+    write 11 to REG_B
+    write OP_CMP_LT to REG_OP
+    cpu_exec
+    jump_if label:move_mouse_and_cat 
+
+    jump label:quit
+
+label quit
+
+    write OP_HALT to REG_OP
+    cpu_exec
+

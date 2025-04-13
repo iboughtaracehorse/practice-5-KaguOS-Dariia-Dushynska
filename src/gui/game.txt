@@ -1,0 +1,11 @@
+command to run the game:
+
+ ./asm.sh src/gui/game.kga 
+ ./bootloader.sh build/kernel.disk
+
+summary:
+
+This was originally meant to be a game about horses.
+But after a scientific experiment, a tragic truth was discovered: horses are not compatible with bitmaps. No matter how hard we tried, they ended up looking like cursed LEGO creatures.
+
+For the sake of everyone's sanity, we made the brave decision to abandon horses and embrace the much more drawable world of cats and vampire rats.
